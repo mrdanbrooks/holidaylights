@@ -20,10 +20,10 @@ class PixelBehavior(object):
         self.brightness = None
         self.delay_time = None
 
-        self.delta = 0.01       # brightness step size
+        self.delta = 0.1       # brightness step size
         self.on_time = 0.5 #1        # Target Time to spend in ON
         self.wait_time = 0.5 #1      # Target Time to spend in WAIT
-        self.update_rate = 0.01 # Timer update rate
+        self.update_rate = 0.1 # Timer update rate
 
         self._timer = None
         self._reset()
@@ -191,7 +191,7 @@ if __name__ == "__main__":
             leds = behavior.update()
 #             print(leds[:5])
             client.put_pixels(leds)
-            time.sleep(0.01)
+            time.sleep(0.1)
     except KeyboardInterrupt:
         behavior.cancel()
 
