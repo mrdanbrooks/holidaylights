@@ -8,7 +8,13 @@ numLEDs = 50 # 512
 client = opc.Client('localhost:7890')
 
 
-class PixelBehavior(object):
+class BrightnessBehavior(object):
+    """ Causes LED brightness to slowly increase, hold on, slowly decrease, then wait before turning on again.
+    Pixel Behavior States: OFF > UP > ON > DOWN > WAIT > OFF
+    - Calling start() transitions into state "UP"
+    - Calling cancel() transitions into state "OFF"
+
+    """
     def __init__(self):
         self.state = "OFF" # OFF, UP, ON, DOWN, WAIT
         self.behavior =  {  "OFF":  self._do_off,
@@ -34,9 +40,24 @@ class PixelBehavior(object):
         self.state = "OFF"
 
     def update(self):
+        """ Updates the brightness value based on behavior state. 
+        NOTE: This must be called at the same frequency as self.update_rate, or behavior may be incorrect.
+        """
         self.behavior[self.state]()
 
+
+    def start(self):
+        if not self.state == "OFF":
+            raise Exception("Behavior already started")
+
+        self.state = "UP"
+
+    def cancel(self):
+        self._reset()
+
+
     def _do_off(self):
+        self.brightness = 0.0
         pass
 
     def _do_up(self):
@@ -64,22 +85,10 @@ class PixelBehavior(object):
             # (this was important for timer, may not still be so imporant)
             self.state = "OFF"
 
-
-
-    def start(self):
-        if not self.state == "OFF":
-            raise Exception("Behavior already started")
-
-        self.state = "UP"
-
-    def cancel(self):
-        self._reset()
-
 class Pixel(object):
     def __init__(self):
-        self.behavior = PixelBehavior()
+        self.behavior = BrightnessBehavior()
         self.mode = "OFF"
-#         self.mode = random.choice(["ORANGE", "PURPLE", "OFF"])
         self.colors = {"OFF": 0.0,
                        "ORANGE": 90.0,
                        "PURPLE": 180.0 }
