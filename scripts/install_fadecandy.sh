@@ -6,3 +6,5 @@ cd fadecandy/server
 make submodules
 make
 
+# Add User to tty group
+# sudo usermod -a -G tty pi
