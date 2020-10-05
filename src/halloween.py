@@ -126,8 +126,8 @@ class Zone(object):
     def __init__(self, num):
         self.zone_number = num
         self.pixels = [Pixel(), Pixel(), Pixel(), Pixel(), Pixel()]
-        self.min_lights = 1
-        self.max_lights = 3
+        self.min_lights = 2
+        self.max_lights = 4
 
         for n in range(0, self.max_lights):
             self._start_random_pixel_random_color()
@@ -153,7 +153,7 @@ class Zone(object):
             self._start_random_pixel_random_color()
         elif num_lights < self.max_lights:
             # There is a probability that we don't do it
-            if random.randint(1,100) > 98:
+            if random.randint(1,100) > 95:
                 self._start_random_pixel_random_color()
 
         return [pixel.update() for pixel in self.pixels]
