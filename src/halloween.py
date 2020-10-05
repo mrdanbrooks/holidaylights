@@ -23,28 +23,21 @@ class PixelBehavior(object):
         self.delta = 0.1       # brightness step size
         self.on_time = 0.5 #1        # Target Time to spend in ON
         self.wait_time = 0.5 #1      # Target Time to spend in WAIT
+        #TODO: Must be set to be the same as parent
         self.update_rate = 0.1 # Timer update rate
 
-        self._timer = None
         self._reset()
 
     def _reset(self):
         self.brightness = 0     # current brightness value
         self.delay_time = 0.0     # Current amount of time spent in ON or WAIT, increments by update_rate
+        self.state = "OFF"
 
-        self._timer = None      # Update Timer object
-
-
-    def _step(self):
-        """ Calls the current behavior """
-#         print(self.state, self.brightness)
+    def update(self):
         self.behavior[self.state]()
 
     def _do_off(self):
-        if self._timer:
-            self._timer.cancel()
-            time.sleep(0.001)
-            self._timer = None
+        pass
 
     def _do_up(self):
         self.brightness += self.delta
@@ -67,26 +60,19 @@ class PixelBehavior(object):
         self.delay_time += self.update_rate
         if self.delay_time > self.wait_time:
             self.delay_time = 0.0
-            self._timer.cancel()
-            time.sleep(0.001)
-            self._timer = None
-            # IMPORTANT: Set state to OFF AFTER disabling timer 
+            # IMPORTANT: Set state to OFF as the last thing 
+            # (this was important for timer, may not still be so imporant)
             self.state = "OFF"
 
 
 
     def start(self):
-        if self._timer:
-            raise Exception("Timer already started")
+        if not self.state == "OFF":
+            raise Exception("Behavior already started")
 
         self.state = "UP"
-        self._timer = timer.Timer(self.update_rate, self._step) 
-        self._timer.start()
 
     def cancel(self):
-        if self._timer:
-            self._timer.cancel()
-        time.sleep(0.01)
         self._reset()
 
 class Pixel(object):
@@ -115,6 +101,7 @@ class Pixel(object):
         self.behavior.start()
 
     def update(self):
+        self.behavior.update()
         rgb = colorsys.hsv_to_rgb(self.color/360.0, 1.0, self.behavior.brightness)
         return [int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255)]
 
