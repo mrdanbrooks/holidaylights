@@ -129,16 +129,37 @@ class Zone(object):
             self._start_random_pixel_random_color()
 
     def _start_random_pixel_random_color(self):
-        # Select a light
-        off_lights = [pixel for pixel in self.pixels if pixel.get_state() == "OFF"]
-        pixel = random.choice(off_lights)
-        # Select a color
-        pixel.set_color(random.choice(["ORANGE", "PURPLE"]))
-        try:
-            pixel.start()
-        except:
-            print(pixel.get_state())
-            exit(0)
+        # Select canidate lights that could be turned on, given the following requirements
+        # (initially all lights are True, turn some off if they don't meet requirements)
+        canidate_lights = [True] * len(self.pixels)
+        for i in range(0, len(self.pixels)):
+            # Don't choose lights that are already turned on
+            if not self.pixels[i].get_state() == "OFF":
+                canidate_lights[i] = False
+            # Check the light to the left, don't neigboring lights to start at the same time
+            if i > 0 and self.pixels[i-1].get_state() == "UP":
+                canidate_lights[i] = False
+            # Check the light to the right, don't neigboring lights to start at the same time
+            if i < (len(self.pixels) - 2) and self.pixels[i+1].get_state() == "UP":
+                canidate_lights[i] = False
+        # Create array with tuples of (bool,pixel), then select pixels where the bool is true
+        off_lights = [pixel for (use_light, pixel) in zip(canidate_lights, self.pixels) if use_light]
+
+        ### NOTE: The above code is a more elaborate version of the single line of code below.
+        ### Went with the more complicated version to get slightly better variance in timing.
+        # off_lights = [pixel for pixel in self.pixels if pixel.get_state() == "OFF"]
+
+        # If there are any available canidate off lights, turn one on
+        if off_lights:
+            # Select a light
+            pixel = random.choice(off_lights)
+            # Select a color
+            pixel.set_color(random.choice(["ORANGE", "PURPLE"]))
+            try:
+                pixel.start()
+            except:
+                print(pixel.get_state())
+                exit(0)
 
     def update(self):
         """ checks pixel states, assigns new behaviors to pixels as needed.
