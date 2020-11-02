@@ -10,7 +10,7 @@ if __name__ == "__main__":
 
 
     client = opc.Client('localhost:7890')
-    behavior = Twinkle(colors)
+    behavior = twinkle.Twinkle(colors)
     try:
         while True:
             leds = behavior.update()
