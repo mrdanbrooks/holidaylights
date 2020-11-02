@@ -121,6 +121,9 @@ class Pixel(object):
 class Zone(object):
     def __init__(self, num, colors):
         self.zone_number = num
+        self.colors = colors
+        self.color_names = self.colors.keys()
+        self.color_names.pop("OFF")
 
         self.pixels = [Pixel(colors), Pixel(colors), Pixel(colors), Pixel(colors), Pixel(colors)]
         self.min_lights = 2
@@ -155,7 +158,7 @@ class Zone(object):
             # Select a light
             pixel = random.choice(off_lights)
             # Select a color
-            pixel.set_color(random.choice(["ORANGE", "PURPLE"]))
+            pixel.set_color(random.choice(self.color_names))
             try:
                 pixel.start()
             except:
