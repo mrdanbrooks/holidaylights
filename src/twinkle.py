@@ -123,7 +123,7 @@ class Zone(object):
         self.zone_number = num
         self.colors = colors
         self.color_names = self.colors.keys()
-        self.color_names.pop("OFF")
+        self.color_names.remove("OFF")
 
         self.pixels = [Pixel(colors), Pixel(colors), Pixel(colors), Pixel(colors), Pixel(colors)]
         self.min_lights = 2
