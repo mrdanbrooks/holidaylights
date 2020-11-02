@@ -6,7 +6,8 @@ import twinkle
 if __name__ == "__main__":
     colors = {"OFF": -1.0,
               "ORANGE": 90.0,
-              "PURPLE": 180.0 }
+              "RED": 110.0,
+              "YELLOW": 80.0 }
 
 
     client = opc.Client('localhost:7890')
