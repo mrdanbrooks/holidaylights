@@ -94,6 +94,7 @@ class Pixel(object):
 #                        "PURPLE": 180.0 }
 
         self.color = self.colors["OFF"]
+        self.color_name = "OFF"
 
         if not self.mode == "OFF":
             self.behavior.start()
@@ -105,13 +106,15 @@ class Pixel(object):
 
     def set_color(self, color):
         self.color = self.colors[color]
+        self.color_name = color
 
     def start(self):
         self.behavior.start()
 
     def update(self):
         self.behavior.update()
-        rgb = colorsys.hsv_to_rgb(self.color/360.0, 1.0, self.behavior.brightness)
+        sat = 1.0 if not self.color_name == "WHITE" else 0.0
+        rgb = colorsys.hsv_to_rgb(self.color/360.0, sat, self.behavior.brightness)
         return [int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255)]
 
     def cancel(self):
