@@ -26,7 +26,8 @@ class BrightnessBehavior(object):
         self.delay_time = None
 
         self.delta = 0.1       # brightness step size
-        self.on_time = 0.5 #1        # Target Time to spend in ON
+        self.static_on_time = 0.5 #1        # Target Time to spend in ON
+        self.random_on_time = 0.5 #1        # Target Time to spend in ON
         self.wait_time = 0.5 #1      # Target Time to spend in WAIT
         #TODO: Must be set to be the same as parent
         self.update_rate = 0.1 # Timer update rate
@@ -63,10 +64,12 @@ class BrightnessBehavior(object):
         self.brightness += self.delta
         if self.brightness >= 1.0:
             self.state = "ON"
+            self.random_on_time = random.choice([0.0, 0.1, 0.2, 0.3])
 
     def _do_on(self):
         self.delay_time += self.update_rate
-        if self.delay_time > self.on_time:
+#         if self.delay_time > self.on_time:
+        if self.delay_time > self.static_on_time + self.random_on_time:
             self.delay_time = 0.0
             self.state = "DOWN"
 
@@ -129,7 +132,7 @@ class Zone(object):
         self.color_names.remove("OFF")
 
         self.pixels = [Pixel(colors), Pixel(colors), Pixel(colors), Pixel(colors), Pixel(colors)]
-        self.min_lights = 2
+        self.min_lights = 4
         self.max_lights = 5
 
         for n in range(0, self.max_lights):
