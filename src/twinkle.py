@@ -125,15 +125,22 @@ class Pixel(object):
 
 
 class Zone(object):
-    def __init__(self, num, colors):
-        self.zone_number = num
+    def __init__(self, zone_num, num_lights, colors):
+        self.zone_number = zone_num
+        self.num_lights = num_lights
         self.colors = colors
         self.color_names = self.colors.keys()
         self.color_names.remove("OFF")
 
-        self.pixels = [Pixel(colors), Pixel(colors), Pixel(colors), Pixel(colors), Pixel(colors)]
+#         self.pixels = [Pixel(colors), Pixel(colors), Pixel(colors), Pixel(colors), Pixel(colors)]
+        self.pixels = list()
+        for i in range(0, self.num_lights):
+            self.pixels.append(Pixel(colors))
+
         self.min_lights = 4
         self.max_lights = 5
+
+        print("Created zone '%d' with %d lights" % (self.zone_number, self.num_lights))
 
         for n in range(0, self.max_lights):
             self._start_random_pixel_random_color()
@@ -174,14 +181,22 @@ class Zone(object):
     def update(self):
         """ checks pixel states, assigns new behaviors to pixels as needed.
         returns list of updated pixel values for the zone """
-        num_lights = len([x for x in self.pixels if not x.get_state() == "OFF"])
-        # If there are less than N lights on, consider turning a new one on
-        if num_lights < self.min_lights:
-            self._start_random_pixel_random_color()
-        elif num_lights <= self.max_lights:
-            # There is a probability that we don't do it
-            if random.randint(1,100) > 95:
-                self._start_random_pixel_random_color()
+        # [db] The code below allow for a random number of lights to be turned off at any given time.
+        # This was partly because all the lights had the same timing, and we used the randomness below
+        # to prevent all the lights from turning on and off at the same time. 
+        # We now vary the length of time a light stays on, so the logic below is no longer needed.
+        # Additionally, it looks better when there are more lights turned on at the same time.
+        # Therefore, we are skipping this step, and simply calling self._start_random_pixel_random_color()
+        # every loop, and allowing it to not do anything if there are no "off lights" to choose from.
+#         num_lights = len([x for x in self.pixels if not x.get_state() == "OFF"])
+#         # If there are less than N lights on, consider turning a new one on
+#         if num_lights < self.min_lights:
+#             self._start_random_pixel_random_color()
+#         elif num_lights <= self.max_lights:
+#             # There is a probability that we don't do it
+#             if random.randint(1,100) > 95:
+#                 self._start_random_pixel_random_color()
+        self._start_random_pixel_random_color()
 
         return [pixel.update() for pixel in self.pixels]
 
@@ -191,7 +206,9 @@ class Zone(object):
 
 class Twinkle(object):
     def __init__(self, colors):
-        self.zones = [Zone(1, colors), Zone(2, colors), Zone(3, colors), Zone(4, colors), Zone(5, colors), Zone(6, colors), Zone(7, colors), Zone(8, colors), Zone(9, colors), Zone(10, colors)]
+#         self.zones = [Zone(1, colors), Zone(2, colors), Zone(3, colors), Zone(4, colors), Zone(5, colors), Zone(6, colors), Zone(7, colors), Zone(8, colors), Zone(9, colors), Zone(10, colors)]
+#         self.zones = [Zone(1, 5, colors), Zone(2, 5, colors), Zone(3, 5, colors), Zone(4, 5, colors), Zone(5, 5, colors), Zone(6, 5, colors), Zone(7, 5, colors), Zone(8, 5, colors), Zone(9, 5, colors), Zone(10, 5, colors)]
+        self.zones = [Zone(1, 16, colors), Zone(2, 17, colors), Zone(3, 17, colors)]
 
     def update(self):
         # TODO Have each zone set new LEDs
