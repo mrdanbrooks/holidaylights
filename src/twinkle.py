@@ -64,7 +64,7 @@ class BrightnessBehavior(object):
         self.brightness += self.delta
         if self.brightness >= 1.0:
             self.state = "ON"
-            self.random_on_time = random.choice([0.0, 0.1, 0.2, 0.3])
+            self.random_on_time = random.choice([0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
 
     def _do_on(self):
         self.delay_time += self.update_rate
