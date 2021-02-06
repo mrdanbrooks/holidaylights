@@ -8,11 +8,12 @@ def set_led_color(color_name, sat, brightness):
     Brightness: 0.0 to 1.0
     """
     colors = {"OFF": -1.0,
-              "YELLOW": 80.0,
+              "YELLOW": 60.0,
               "ORANGE": 90.0,
               "RED": 110.0,
               "PURPLE": 180.0, 
               "BLUE": 240.0,
+              "GREEN": 350.0,
               "WHITE": -1.0}
     color = colors[color_name]
     sat = 1.0

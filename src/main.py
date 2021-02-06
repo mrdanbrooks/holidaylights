@@ -4,9 +4,17 @@ from behaviors import *
 def new_years():
     manager = BehaviorManager(50)
     manager.add_behavior_overlay(StaticOn("BLUE"))
-    manager.add_behavior_overlay(Sparkle())
+    manager.add_behavior_overlay(Sparkle("WHITE"))
 #     manager.add_behavior_overlay(MovingPixel())
     manager.start()
+
+def st_patrick():
+    manager = BehaviorManager(50)
+    manager.add_behavior_overlay(StaticOn("GREEN"))
+    manager.add_behavior_overlay(Sparkle("YELLOW"))
+#     manager.add_behavior_overlay(MovingPixel())
+    manager.start()
+
 
 def valentines_day():
     import opc
@@ -32,5 +40,7 @@ def valentines_day():
 
 
 if __name__ == "__main__":
+#     new_years()
     valentines_day()
+#     st_patrick()
 

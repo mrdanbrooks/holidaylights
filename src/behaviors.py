@@ -51,8 +51,9 @@ class Sparkle(Behavior):
     """ Random LEDs briefly flare and then disappear again
     Assumes 50 lights across 3 windows 
     """
-    def __init__(self):
+    def __init__(self, color):
         self.zones = [range(0,8), range(8,17), range(17,25), range(25,34), range(34, 42), range(42,50)]
+        self.color = color
         self.current_zone = 1
 
 
@@ -66,7 +67,7 @@ class Sparkle(Behavior):
     def update(self, leds):
         target = random.choice(self.zones[self.current_zone])
 #         print("zone %d led %d" % (self.current_zone, target))
-        update_led_value(leds[target], set_led_color("WHITE", 1.0, 1.0))
+        update_led_value(leds[target], set_led_color(self.color, 1.0, 1.0))
         # select new zone (can't be current zone)
         zones = range(0,len(self.zones))
         zones.pop(zones.index(self.current_zone))
