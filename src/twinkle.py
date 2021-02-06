@@ -116,7 +116,12 @@ class Pixel(object):
 
     def update(self):
         self.behavior.update()
-        sat = 1.0 if not self.color_name == "WHITE" else 0.0
+        sat = 1.0
+        if self.color_name == "WHITE":
+            sat = 0.0
+        if self.color_name == "PINK":
+            sat = 0.5
+#         sat = 1.0 if not self.color_name == "WHITE" else 0.0
         rgb = colorsys.hsv_to_rgb(self.color/360.0, sat, self.behavior.brightness)
         return [int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255)]
 
