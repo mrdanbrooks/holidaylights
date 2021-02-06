@@ -15,7 +15,12 @@ def set_led_color(color_name, sat, brightness):
               "BLUE": 240.0,
               "WHITE": -1.0}
     color = colors[color_name]
-    sat = 1.0 if not color_name == "WHITE" else 0.0
+    sat = 1.0
+    if color_name == "white":
+        sat = 0.0
+    if color_name == "pink":
+        sat = 0.5
+#     sat = 1.0 if not color_name == "WHITE" else 0.0
 #     print("col=%f"%color)
 #     print("Sat=%f"%sat)
 #     print("Bri=%f"%brightness)
