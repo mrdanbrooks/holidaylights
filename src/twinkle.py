@@ -1,5 +1,5 @@
 import opc, time
-import colorsys
+from ledcolor import LEDColor
 import random
 
 import timer
@@ -35,7 +35,7 @@ class BrightnessBehavior(object):
         self._reset()
 
     def _reset(self):
-        self.brightness = 0     # current brightness value
+        self.brightness = 0.0     # current brightness value
         self.delay_time = 0.0     # Current amount of time spent in ON or WAIT, increments by update_rate
         self.state = "OFF"
 
@@ -63,12 +63,12 @@ class BrightnessBehavior(object):
     def _do_up(self):
         self.brightness += self.delta
         if self.brightness >= 1.0:
+            self.brightness = 1.0
             self.state = "ON"
             self.random_on_time = random.choice([0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
 
     def _do_on(self):
         self.delay_time += self.update_rate
-#         if self.delay_time > self.on_time:
         if self.delay_time > self.static_on_time + self.random_on_time:
             self.delay_time = 0.0
             self.state = "DOWN"
@@ -88,42 +88,29 @@ class BrightnessBehavior(object):
             self.state = "OFF"
 
 class Pixel(object):
-    def __init__(self, colors):
+    def __init__(self):
         self.behavior = BrightnessBehavior()
         self.mode = "OFF"
-        self.colors = colors 
-#         self.colors = {"OFF": 0.0,
-#                        "ORANGE": 90.0,
-#                        "PURPLE": 180.0 }
-
-        self.color = self.colors["OFF"]
-        self.color_name = "OFF"
+        self.color = LEDColor("OFF")
 
         if not self.mode == "OFF":
             self.behavior.start()
 
-        self.brightness = 0
+        self.brightness = 0.0
     
     def get_state(self):
         return self.behavior.state
 
-    def set_color(self, color):
-        self.color = self.colors[color]
-        self.color_name = color
+    def set_color(self, color_name):
+        self.color.set_color(color_name)
 
     def start(self):
         self.behavior.start()
 
     def update(self):
         self.behavior.update()
-        sat = 1.0
-        if self.color_name == "WHITE":
-            sat = 0.0
-        if self.color_name == "PINK":
-            sat = 0.5
-#         sat = 1.0 if not self.color_name == "WHITE" else 0.0
-        rgb = colorsys.hsv_to_rgb(self.color/360.0, sat, self.behavior.brightness)
-        return [int(rgb[0] * 255), int(rgb[1] * 255), int(rgb[2] * 255)]
+        self.color.set_brightness(self.behavior.brightness)
+        return self.color.get_rgb()
 
     def cancel(self):
         self.behavior.cancel()
@@ -133,14 +120,13 @@ class Zone(object):
     def __init__(self, zone_num, num_lights, colors):
         self.zone_number = zone_num
         self.num_lights = num_lights
-        self.colors = colors
-        self.color_names = self.colors.keys()
-        self.color_names.remove("OFF")
+        self.color_names  = colors
+        if "OFF" in self.color_names:
+            self.color_names.remove("OFF")
 
-#         self.pixels = [Pixel(colors), Pixel(colors), Pixel(colors), Pixel(colors), Pixel(colors)]
         self.pixels = list()
         for i in range(0, self.num_lights):
-            self.pixels.append(Pixel(colors))
+            self.pixels.append(Pixel())
 
         self.min_lights = 4
         self.max_lights = 5

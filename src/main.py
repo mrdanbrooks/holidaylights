@@ -16,16 +16,10 @@ def st_patrick():
     manager.start()
 
 
-def valentines_day():
+def twinkle_wrapper(colors):
     import opc
     import time
     import twinkle
-
-    colors = {"OFF": -1.0,
-              "WHITE": -1.0,
-              "PINK": 110.0,
-              "RED": 110.0}
-
 
     client = opc.Client('localhost:7890')
     behavior = twinkle.Twinkle(colors)
@@ -39,8 +33,66 @@ def valentines_day():
         behavior.cancel()
 
 
+def valentines_day():
+    colors = ["OFF",
+              "WHITE",
+              "PINK",
+              "PINK",
+              "RED"]
+    twinkle_wrapper(colors)
+
+def easter():
+    colors = ["OFF",
+              "WHITE",
+              "PINK",
+              "COOLBLUE",
+              "TEAL",
+              "LIGHTGREEN",
+              "GREEN",
+              "RED"]
+    twinkle_wrapper(colors)
+
+
+def fourthofjuly():
+    colors = ["OFF",
+              "RED",
+              "WHITE",
+              "BLUE"]
+    twinkle_wrapper(colors)          
+
+
+def halloween():
+    colors = ["OFF",
+              "ORANGE",
+              "PURPLE"]
+    twinkle_wrapper(colors)
+
+
+def thanksgiving():
+    colors = ["OFF",
+              "ORANGE",
+              "RED",
+              "YELLOW"]
+    twinkle_wrapper(colors)
+
+
+def christmas():
+    colors = ["OFF",
+              "RED",
+              "GREEN"]
+    twinkle_wrapper(colors)
+
+
+
+
+
 if __name__ == "__main__":
 #     new_years()
-    valentines_day()
+#     valentines_day()
 #     st_patrick()
+    easter()
+#     fourthofjuly()
+#     halloween()
+#     thanksgiving()
+#     christmas()
 
