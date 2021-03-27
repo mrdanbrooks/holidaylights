@@ -43,13 +43,12 @@ def valentines_day():
 
 def easter():
     colors = ["OFF",
-              "WHITE",
+              "YELLOW",
               "PINK",
               "COOLBLUE",
-              "TEAL",
               "LIGHTGREEN",
-              "GREEN",
-              "RED"]
+              "LIGHTPURPLE"
+              ]
     twinkle_wrapper(colors)
 
 
