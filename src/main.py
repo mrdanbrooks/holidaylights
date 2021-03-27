@@ -1,21 +1,6 @@
 from overlay import *
 from behaviors import *
 
-def new_years():
-    manager = BehaviorManager(50)
-    manager.add_behavior_overlay(StaticOn("BLUE"))
-    manager.add_behavior_overlay(Sparkle("WHITE"))
-#     manager.add_behavior_overlay(MovingPixel())
-    manager.start()
-
-def st_patrick():
-    manager = BehaviorManager(50)
-    manager.add_behavior_overlay(StaticOn("GREEN"))
-    manager.add_behavior_overlay(Sparkle("YELLOW"))
-#     manager.add_behavior_overlay(MovingPixel())
-    manager.start()
-
-
 def twinkle_wrapper(colors):
     import opc
     import time
@@ -33,6 +18,14 @@ def twinkle_wrapper(colors):
         behavior.cancel()
 
 
+def new_years():
+    manager = BehaviorManager(50)
+    manager.add_behavior_overlay(StaticOn("BLUE"))
+    manager.add_behavior_overlay(Sparkle("WHITE"))
+#     manager.add_behavior_overlay(MovingPixel())
+    manager.start()
+
+
 def valentines_day():
     colors = ["OFF",
               "WHITE",
@@ -41,14 +34,21 @@ def valentines_day():
               "RED"]
     twinkle_wrapper(colors)
 
+
+def st_patrick():
+    manager = BehaviorManager(50)
+    manager.add_behavior_overlay(StaticOn("GREEN"))
+    manager.add_behavior_overlay(Sparkle("YELLOW"))
+#     manager.add_behavior_overlay(MovingPixel())
+    manager.start()
+
+
 def easter():
-    colors = ["OFF",
-              "YELLOW",
+    colors = ["YELLOW",
               "PINK",
               "COOLBLUE",
               "LIGHTGREEN",
-              "LIGHTPURPLE"
-              ]
+              "LIGHTPURPLE"]
     twinkle_wrapper(colors)
 
 
