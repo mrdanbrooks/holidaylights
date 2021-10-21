@@ -1,4 +1,7 @@
 #!/usr/bin/env python3.8
+# Party Parrot Lights
+# This is a not a typical house lights routine - this is for a dual strand
+# attached to a monitor, to create a party parrot effect.
 import opc, time
 import colorsys
 
