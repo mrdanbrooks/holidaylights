@@ -87,10 +87,10 @@ def christmas():
 
 
 def rainbow():
-    manager = BehaviorManager(CLIENT, 50)
+    manager = BehaviorManager(CLIENT, 100)
     manager.add_behavior_overlay(RainbowColors())
     manager.add_behavior_overlay(Shifter(1))
-    manager.loop(0.1)
+    manager.loop(0.01)
 
 
 
