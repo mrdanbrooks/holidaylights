@@ -92,10 +92,16 @@ def rainbow():
     manager.add_behavior_overlay(Shifter(1))
     manager.loop(0.01)
 
+def candycane():
+    manager = BehaviorManager(CLIENT, 100)
+    manager.add_behavior_overlay(CandyCaneColors(10))
+    manager.add_behavior_overlay(Shifter(1))
+    manager.loop(0.08)
 
 
 if __name__ == "__main__":
     rainbow()
+#     candycane()
 #     new_years()
 #     valentines_day()
 #     st_patrick()

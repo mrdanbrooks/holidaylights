@@ -42,6 +42,36 @@ class RainbowColors(Behavior):
         return leds
 
 
+class CandyCaneColors(Behavior):
+    """ Makes a static candy cane stripping pattern """
+    def __init__(self, stripe_size):
+        self.stripe_size = stripe_size
+
+    def init(self, leds):
+        n = len(leds)
+        num_stripes = n // self.stripe_size
+        color = "RED"
+        for i in range(0, num_stripes):
+            # Alternate colors
+            color = "WHITE" if color == "RED" else "RED"
+            for j in range(0, self.stripe_size):
+                leds[i*self.stripe_size + j] = set_led_color(color, 1.0, 1.0)
+        # Assign all remaining leds to last color
+        for j in range(0, n % self.stripe_size):
+            leds[num_stripes*self.stripe_size + j] = set_led_color(color, 1.0, 1.0)
+
+        return leds
+
+    def update(self, leds):
+        return leds
+
+    def cancel(self, leds):
+        for led in leds:
+            update_led_value(led, set_led_color("OFF", 0.0, 0.0))
+        return leds
+
+
+
 
 # Class Shifter(direction, speed)
 class Shifter(Behavior):
