@@ -1,9 +1,9 @@
-# import opc
+import opc
 import neopixel_client
 import time
 import colorsys
 
-def set_led_color(color_name, sat, brightness):
+def old_set_led_color(color_name, sat, brightness):
     """ Set HSV color to LED RGB value 
     Saturation: 0.0 to 1.0
     Brightness: 0.0 to 1.0
@@ -71,11 +71,16 @@ class BehaviorManager(object):
         # Initialize LEDs and their RGB settings
         self.__led_values = list() 
         for i in range(0, num_lights):
-            self.__led_values.append(set_led_color("OFF", 0.0, 0.0))
+            self.__led_values.append([0.0, 0.0, 0.0])
 
         # Connection to LED controller
         if client == "opc":
-            self.__led_client = opc.Client('localhost:7890')
+            class OPCWrapper(opc.Client):
+                def put_pixels(self, pixels, channel=0):
+                    #TODO: rearrange rgb to grb
+                    super().put_pixels(pixels, channel)
+#             self.__led_client = opc.Client('localhost:7890')
+            self.__led_client = OPCWrapper('localhost:7890')
         elif client == "neopixel":
             self.__led_client = neopixel_client.NeoPixelClient(num_lights)
 
@@ -106,8 +111,12 @@ class BehaviorManager(object):
     
     def step(self):
         try:
+            print("before = %s" % self.__led_values)
             for behavior in self.__overlays:
                 self.__leds_values = behavior.update(self.__led_values)
+            print("step = %s" % self.__led_values)
+            print(type(self.__led_values[0][0]))
+            print(self.__led_values[0][0])
             self.__led_client.put_pixels(self.__leds_values)
         except KeyboardInterrupt:
             self._cancel_behaviors()

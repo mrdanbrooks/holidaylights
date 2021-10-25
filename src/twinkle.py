@@ -132,14 +132,16 @@ class Twinkle(Behavior):
         for pixel in self.pixels:
             pixel.update()
 
-        return [p.rgb_value() for p in self.pixels]
+        values =  [p.rgb_value() for p in self.pixels]
+        print("values = %s" % values)
+        return values
 
     def cancel(self, leds):
         for pixel in self.pixels:
             pixel.cancel()
 
         for led in leds:
-            update_led_value(led, set_led_color("OFF", 0.0, 0.0))
+            update_led_value(led, (0, 0, 0))
         return leds
 
 

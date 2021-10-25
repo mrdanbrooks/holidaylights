@@ -1,6 +1,7 @@
 from overlay import *
 import random
 import colorsys
+from ledcolor import LEDColor
 
 class StaticOn(Behavior):
     """ Set all the LEDs to the same color """
@@ -17,8 +18,29 @@ class StaticOn(Behavior):
 
     def cancel(self, leds):
         for led in leds:
-            update_led_value(led, set_led_color("OFF", 0.0, 0.0))
+            update_led_value(led, (0, 0, 0))
         return leds
+
+class SolidColor(Behavior):
+    """ replacement for StaticOn that doesn't use set_led_color """
+    def __init__(self, color):
+        self.color = LEDColor(color)
+
+    def init(self, leds):
+        return self.update(leds)
+
+    def update(self, leds):
+        for led in leds:
+            update_led_value(led, self.color.get_rgb())
+        print("solids = %s" % leds)
+        return leds
+
+    def cancel(self, leds):
+        self.color.set_color("OFF")
+        for led in leds:
+            update_led_value(led, (0, 0, 0))
+        return leds
+
 
 
 # Class Rainbow - makes a static rainbow
@@ -38,7 +60,7 @@ class RainbowColors(Behavior):
 
     def cancel(self, leds):
         for led in leds:
-            update_led_value(led, set_led_color("OFF", 0.0, 0.0))
+            update_led_value(led, (0, 0, 0))
         return leds
 
 
@@ -67,7 +89,7 @@ class CandyCaneColors(Behavior):
 
     def cancel(self, leds):
         for led in leds:
-            update_led_value(led, set_led_color("OFF", 0.0, 0.0))
+            update_led_value(led, [0, 0, 0])
         return leds
 
 
@@ -127,7 +149,7 @@ class MovingPixel(Behavior):
 
     def cancel(self, leds):
         for led in leds:
-            update_led_value(led, set_led_color("OFF", 0.0, 0.0))
+            update_led_value(led, (0, 0, 0))
         return leds
 
 
@@ -160,7 +182,7 @@ class Sparkle(Behavior):
  
     def cancel(self, leds):
         for led in leds:
-            update_led_value(led, set_led_color("OFF", 0.0, 0.0))
+            update_led_value(led, (0,0,0))
         return leds
 
 
