@@ -1,147 +1,113 @@
-import opc, time
-from ledcolor import LEDColor
+from overlay import *
 import random
+from ledcolor import LEDColor
 
-import timer
-
-numLEDs = 50 # 512
-
-
-class BrightnessBehavior(object):
-    """ Causes LED brightness to slowly increase, hold on, slowly decrease, then wait before turning on again.
-    Pixel Behavior States: OFF > UP > ON > DOWN > WAIT > OFF
-    - Calling start() transitions into state "UP"
-    - Calling cancel() transitions into state "OFF"
-
-    """
-    def __init__(self):
-        self.state = "OFF" # OFF, UP, ON, DOWN, WAIT
-        self.behavior =  {  "OFF":  self._do_off,
-                            "UP":   self._do_up,
-                            "ON":   self._do_on,
-                            "DOWN": self._do_down,
-                            "WAIT": self._do_wait
-                            }
-        self.brightness = None
-        self.delay_time = None
-
-        self.delta = 0.1       # brightness step size
-        self.static_on_time = 0.5 #1        # Target Time to spend in ON
-        self.random_on_time = 0.5 #1        # Target Time to spend in ON
-        self.wait_time = 0.5 #1      # Target Time to spend in WAIT
-        #TODO: Must be set to be the same as parent
-        self.update_rate = 0.1 # Timer update rate
-
-        self._reset()
-
-    def _reset(self):
-        self.brightness = 0.0     # current brightness value
-        self.delay_time = 0.0     # Current amount of time spent in ON or WAIT, increments by update_rate
-        self.state = "OFF"
-
-    def update(self):
-        """ Updates the brightness value based on behavior state. 
-        NOTE: This must be called at the same frequency as self.update_rate, or behavior may be incorrect.
-        """
-        self.behavior[self.state]()
-
-
-    def start(self):
-        if not self.state == "OFF":
-            raise Exception("Behavior already started")
-
-        self.state = "UP"
-
-    def cancel(self):
-        self._reset()
-
-
-    def _do_off(self):
-        self.brightness = 0.0
-        pass
-
-    def _do_up(self):
-        self.brightness += self.delta
-        if self.brightness >= 1.0:
-            self.brightness = 1.0
-            self.state = "ON"
-            self.random_on_time = random.choice([0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
-
-    def _do_on(self):
-        self.delay_time += self.update_rate
-        if self.delay_time > self.static_on_time + self.random_on_time:
-            self.delay_time = 0.0
-            self.state = "DOWN"
-
-    def _do_down(self):
-        self.brightness -= self.delta
-        if self.brightness < 0.0:
-            self.brightness = 0.0
-            self.state = "WAIT"
-
-    def _do_wait(self):
-        self.delay_time += self.update_rate
-        if self.delay_time > self.wait_time:
-            self.delay_time = 0.0
-            # IMPORTANT: Set state to OFF as the last thing 
-            # (this was important for timer, may not still be so imporant)
-            self.state = "OFF"
 
 class Pixel(object):
-    def __init__(self):
-        self.behavior = BrightnessBehavior()
-        self.mode = "OFF"
-        self.color = LEDColor("OFF")
+    def __init__(self, update_rate):
+        self._state = "OFF"   # OFF, UP, ON, DOWN, WAIT
+        self._behavior = { "OFF": self._do_off,
+                           "UP": self._do_up,
+                           "ON": self._do_on,
+                           "DOWN": self._do_down,
+                           "WAIT": self._do_wait
+                           }
+        self._brightness = None
+        self._delay_time = None          # Variably determined time to wait
+        self._update_rate = update_rate  # program looping rate - used to determine how quickly to decrement delay time
+        self._color = LEDColor("OFF")
 
-        if not self.mode == "OFF":
-            self.behavior.start()
+        # Constant Parameters
+        self._delta = 0.1  # constant brightness step size
+        self._static_wait_time = 0.5
 
-        self.brightness = 0.0
-    
-    def get_state(self):
-        return self.behavior.state
+        self._reset()
+        
+    def _reset(self):
+        self._brightness = 0.0
+        self._delay_time = 0.0
+        self._state = "OFF"
 
-    def set_color(self, color_name):
-        self.color.set_color(color_name)
+    def _do_off(self):
+        self._brightness = 0.0
 
-    def start(self):
-        self.behavior.start()
+    def _do_up(self):
+        self._brightness += self._delta
+        if self._brightness >= 1.0:
+            self._brightness = 1.0
+            self._state = "ON"
+            self._delay_time = self._static_wait_time + random.choice([0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
+
+    def _do_on(self):
+        # TODO: Find a more clever way of counting time for each pixel - but not Threaded timers (doesnt work well on pi zero)
+        self._delay_time -= self._update_rate
+        if self._delay_time < 0:
+            self._delay_time = 0.0
+            self._state = "DOWN"
+
+    def _do_down(self):
+        self._brightness -= self._delta
+        if self._brightness < 0.0:
+            self._brightness = 0.0
+            self._state = "WAIT"
+            self._delay_time = self._static_wait_time + random.choice([0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
+
+    def _do_wait(self):
+        self._delay_time -= self._update_rate
+        if self._delay_time < 0:
+            self._delay_time = 0.0
+            self._state = "OFF"
+
+
+    def start(self, color_name):
+        """ Trigger light to begin turning on """
+        if not self._state == "OFF":
+            raise Exception("Pixel.start() error: Pixel already turned on")
+        self._color.set_color(color_name)
+        self._state = "UP"
 
     def update(self):
-        self.behavior.update()
-        self.color.set_brightness(self.behavior.brightness)
-        return self.color.get_rgb()
+        """ Calculates the new pixel state and brightness settings for this time step
+        called by Twinkle.update()
+        """
+        self._behavior[self._state]()
+        self._color.set_brightness(self._brightness)
 
     def cancel(self):
-        self.behavior.cancel()
+        self._reset()
+
+    def get_state(self):
+        """ returns the current state of the pixel (OFF, UP, ON, DOWN, WAIT) """
+        return self._state
+
+    def rgb_value(self):
+        """ returns rgb value
+        called by Twinkle.update()
+        """
+        return self._color.get_rgb()
 
 
-class Zone(object):
-    def __init__(self, zone_num, num_lights, colors):
-        self.zone_number = zone_num
-        self.num_lights = num_lights
-        self.color_names  = colors
-        if "OFF" in self.color_names:
-            self.color_names.remove("OFF")
-
+class Twinkle(Behavior):
+    def __init__(self, colors_names, update_rate):
+        self.update_rate = update_rate  # Track update rate so pixels know how quickly to decrement timers
+        self.color_names = colors_names
+        self.num_leds = None
         self.pixels = list()
-        for i in range(0, self.num_lights):
-            self.pixels.append(Pixel())
 
-        self.min_lights = 4
-        self.max_lights = 5
+    def init(self, leds):
+        """ Initially, all lights are on, turn off lights that don't meet reqiurements later """
+        self.num_leds = len(leds)
+        self.pixels = list()
+        for i in range(0, self.num_leds):
+            self.pixels.append(Pixel(self.update_rate))
+        return [p.rgb_value() for p in self.pixels]
 
-        print("Created zone '%d' with %d lights" % (self.zone_number, self.num_lights))
 
-        for n in range(0, self.max_lights):
-            self._start_random_pixel_random_color()
-
-    def _start_random_pixel_random_color(self):
-        # Select canidate lights that could be turned on, given the following requirements
-        # (initially all lights are True, turn some off if they don't meet requirements)
-        canidate_lights = [True] * len(self.pixels)
-        for i in range(0, len(self.pixels)):
-            # Don't choose lights that are already turned on
+    def update(self, leds):
+        # Select Canidate lights that could be turned on, given the following requirements.
+        canidate_lights = [True] * self.num_leds
+        for i in range(0, self.num_leds):
+            # Dont choose lights that are already on
             if not self.pixels[i].get_state() == "OFF":
                 canidate_lights[i] = False
             # Check the light to the left, don't neigboring lights to start at the same time
@@ -151,67 +117,29 @@ class Zone(object):
             if i < (len(self.pixels) - 2) and self.pixels[i+1].get_state() == "UP":
                 canidate_lights[i] = False
         # Create array with tuples of (bool,pixel), then select pixels where the bool is true
-        off_lights = [pixel for (use_light, pixel) in zip(canidate_lights, self.pixels) if use_light]
+        canidate_pixels = [pixel for (use_light, pixel) in zip(canidate_lights, self.pixels) if use_light]
 
-        ### NOTE: The above code is a more elaborate version of the single line of code below.
-        ### Went with the more complicated version to get slightly better variance in timing.
-        # off_lights = [pixel for pixel in self.pixels if pixel.get_state() == "OFF"]
-
-        # If there are any available canidate off lights, turn one on
-        if off_lights:
-            # Select a light
-            pixel = random.choice(off_lights)
-            # Select a color
-            pixel.set_color(random.choice(self.color_names))
+        # If there are any available canidate_pixels, Select a single LED to turn on from list of canidates
+        if canidate_pixels:
+            pixel = random.choice(canidate_pixels)
             try:
-                pixel.start()
+                pixel.start(random.choice(self.color_names))
             except:
                 print(pixel.get_state())
                 exit(0)
 
-    def update(self):
-        """ checks pixel states, assigns new behaviors to pixels as needed.
-        returns list of updated pixel values for the zone """
-        # [db] The code below allow for a random number of lights to be turned off at any given time.
-        # This was partly because all the lights had the same timing, and we used the randomness below
-        # to prevent all the lights from turning on and off at the same time. 
-        # We now vary the length of time a light stays on, so the logic below is no longer needed.
-        # Additionally, it looks better when there are more lights turned on at the same time.
-        # Therefore, we are skipping this step, and simply calling self._start_random_pixel_random_color()
-        # every loop, and allowing it to not do anything if there are no "off lights" to choose from.
-#         num_lights = len([x for x in self.pixels if not x.get_state() == "OFF"])
-#         # If there are less than N lights on, consider turning a new one on
-#         if num_lights < self.min_lights:
-#             self._start_random_pixel_random_color()
-#         elif num_lights <= self.max_lights:
-#             # There is a probability that we don't do it
-#             if random.randint(1,100) > 95:
-#                 self._start_random_pixel_random_color()
-        self._start_random_pixel_random_color()
+        #update each pixel value before reading rgb 
+        for pixel in self.pixels:
+            pixel.update()
 
-        return [pixel.update() for pixel in self.pixels]
+        return [p.rgb_value() for p in self.pixels]
 
-    def cancel(self):
+    def cancel(self, leds):
         for pixel in self.pixels:
             pixel.cancel()
 
-class Twinkle(object):
-    def __init__(self, colors):
-#         self.zones = [Zone(1, colors), Zone(2, colors), Zone(3, colors), Zone(4, colors), Zone(5, colors), Zone(6, colors), Zone(7, colors), Zone(8, colors), Zone(9, colors), Zone(10, colors)]
-#         self.zones = [Zone(1, 5, colors), Zone(2, 5, colors), Zone(3, 5, colors), Zone(4, 5, colors), Zone(5, 5, colors), Zone(6, 5, colors), Zone(7, 5, colors), Zone(8, 5, colors), Zone(9, 5, colors), Zone(10, 5, colors)]
-        self.zones = [Zone(1, 16, colors), Zone(2, 17, colors), Zone(3, 17, colors)]
+        for led in leds:
+            update_led_value(led, set_led_color("OFF", 0.0, 0.0))
+        return leds
 
-    def update(self):
-        # TODO Have each zone set new LEDs
-
-        # Calculate LED values
-        led_values = list()
-        for zone in self.zones:
-            led_values += zone.update()
-
-        return led_values
-
-    def cancel(self):
-        for zone in self.zones:
-            zone.cancel()
 

@@ -7,11 +7,11 @@ def twinkle_wrapper(colors):
 #     import opc
     import neopixel_client
     import time
-    import twinkle
+    import old_twinkle
 
     client = opc.Client('localhost:7890')
     client = neopixel_client.NeoPixelClient(100)
-    behavior = twinkle.Twinkle(colors)
+    behavior = old_twinkle.Twinkle(colors)
     try:
         while True:
             leds = behavior.update()
@@ -98,9 +98,22 @@ def candycane():
     manager.add_behavior_overlay(Shifter(1))
     manager.loop(0.08)
 
+def newtwinkle():
+    from twinkle import Twinkle
+    colors = ["OFF",
+              "RED",
+              "GREEN"]
+
+    manager = BehaviorManager(CLIENT, 100)
+    manager.add_behavior_overlay(Twinkle(colors, 0.01))
+    manager.loop(0.01)
+
+
 
 if __name__ == "__main__":
-    rainbow()
+    newtwinkle()
+
+#     rainbow()
 #     candycane()
 #     new_years()
 #     valentines_day()
