@@ -1,4 +1,5 @@
-import opc
+# import opc
+import neopixel_client
 import time
 import colorsys
 
@@ -56,7 +57,14 @@ class Behavior(object):
         raise NotImplementedError()
 
 class BehaviorManager(object):
-    def __init__(self, num_lights):
+    def __init__(self, client, num_lights):
+        """
+        client = "opc" (for fadecandy) or "neopixel" (for adafruit library)
+        """
+        # Set size of strand
+        self.num_leds = num_lights
+
+
         # Behaviors
         self.__overlays = list()
 
@@ -66,26 +74,42 @@ class BehaviorManager(object):
             self.__led_values.append(set_led_color("OFF", 0.0, 0.0))
 
         # Connection to LED controller
-        self.__led_client = opc.Client('localhost:7890')
+        if client == "opc":
+            self.__led_client = opc.Client('localhost:7890')
+        elif client == "neopixel":
+            self.__led_client = neopixel_client.NeoPixelClient(num_lights)
+
+
+    def _cancel_behaviors(self):
+        """ Call cancel() on all behaviors() """
+        for behavior in self.__overlays:
+            self.__leds_values = behavior.cancel(self.__led_values)
+        self.__led_client.put_pixels(self.__leds_values)
+        time.sleep(0.1)
+
 
     def add_behavior_overlay(self, behavior):
         assert(isinstance(behavior, Behavior))
         self.__led_values = behavior.init(self.__led_values)
         self.__overlays.append(behavior)
 
-    def start(self):
-        try:
-            while True:
-                for behavior in self.__overlays:
-                    self.__leds_values = behavior.update(self.__led_values)
-#                 print(len(self.__leds_values))
-                self.__led_client.put_pixels(self.__leds_values)
-                time.sleep(0.1)
-#                 time.sleep(1)
-        except KeyboardInterrupt:
-             for behavior in self.__overlays:
-                self.__leds_values = behavior.cancel(self.__led_values)
-             self.__led_client.put_pixels(self.__leds_values)
-             time.sleep(0.1)
 
+    def loop(self, wait_time=0.01):
+        """ Run in a loop """
+        while True:
+            try:
+                self.step()
+                time.sleep(wait_time)
+            except KeyboardInterrupt:
+                self._cancel_behaviors()
+                break
+    
+    def step(self):
+        try:
+            for behavior in self.__overlays:
+                self.__leds_values = behavior.update(self.__led_values)
+            self.__led_client.put_pixels(self.__leds_values)
+        except KeyboardInterrupt:
+            self._cancel_behaviors()
+            raise KeyboardInterrupt
 
