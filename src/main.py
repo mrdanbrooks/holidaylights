@@ -24,10 +24,10 @@ def twinkle_wrapper(colors):
 
 def new_years():
     manager = BehaviorManager(CLIENT, 100)
-    manager.add_behavior_overlay(StaticOn("BLUE"))
+    manager.add_behavior_overlay(SolidColor("BLUE"))
     manager.add_behavior_overlay(Sparkle("WHITE"))
 #     manager.add_behavior_overlay(MovingPixel())
-    manager.loop()
+    manager.loop(0.05)
 
 
 def valentines_day():
@@ -148,8 +148,8 @@ if __name__ == "__main__":
 #     test_twinkle()
 #     test_colors()
 
-#     new_years()
-    valentines_day()
+    new_years()
+#     valentines_day()
 #     st_patrick()
 #     easter()
 #     rainbow()
