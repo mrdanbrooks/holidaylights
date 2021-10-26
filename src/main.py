@@ -105,21 +105,24 @@ def candycane():
 def test_twinkle():
     from twinkle import Twinkle
     colors = ["OFF",
-              "RED"]
+              "WHITE",
+              "PINK"]
 
     manager = BehaviorManager(CLIENT, 1)
     manager.add_behavior_overlay(Twinkle(colors, 0.01))
     manager.loop(0.01)
 
 
-def test_color():
-    manager = BehaviorManager(CLIENT, 1)
-    manager.add_behavior_overlay(SolidColor("RED"))
+def test_colors():
+#     colors = ["WHITE", "PINK", "RED"]
+    colors = ["RED", "GREEN"]
+    manager = BehaviorManager(CLIENT, 100)
+    manager.add_behavior_overlay(TestColorPallet(colors))
     manager.loop(0.01)
 
 if __name__ == "__main__":
-    test_twinkle()
-#     test_color()
+#     test_twinkle()
+    test_colors()
 
 #     rainbow()
 #     candycane()
