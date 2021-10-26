@@ -92,6 +92,8 @@ class CandyCaneColors(Behavior):
     """ Makes a static candy cane stripping pattern """
     def __init__(self, stripe_size):
         self.stripe_size = stripe_size
+        self.red_color = LEDColor("RED")
+        self.white_color = LEDColor("WHITE")
 
     def init(self, leds):
         n = len(leds)
@@ -101,10 +103,10 @@ class CandyCaneColors(Behavior):
             # Alternate colors
             color = "WHITE" if color == "RED" else "RED"
             for j in range(0, self.stripe_size):
-                leds[i*self.stripe_size + j] = set_led_color(color, 1.0, 1.0)
+                leds[i*self.stripe_size + j] = LEDColor(color).get_rgb() 
         # Assign all remaining leds to last color
         for j in range(0, n % self.stripe_size):
-            leds[num_stripes*self.stripe_size + j] = set_led_color(color, 1.0, 1.0)
+            leds[num_stripes*self.stripe_size + j] = LEDColor(color).get_rgb() 
 
         return leds
 
@@ -183,7 +185,7 @@ class Sparkle(Behavior):
     """
     def __init__(self, color):
         self.zones = [range(0,8), range(8,17), range(17,25), range(25,34), range(34, 42), range(42,50)]
-        self.color = color
+        self.color = LEDColor(color)
         self.current_zone = 1
 
 
@@ -197,7 +199,7 @@ class Sparkle(Behavior):
     def update(self, leds):
         target = random.choice(self.zones[self.current_zone])
 #         print("zone %d led %d" % (self.current_zone, target))
-        update_led_value(leds[target], set_led_color(self.color, 1.0, 1.0))
+        update_led_value(leds[target], self.color.get_rgb())
         # select new zone (can't be current zone)
         zones = list(range(0,len(self.zones)))
         zones.pop(zones.index(self.current_zone))
