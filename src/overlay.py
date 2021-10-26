@@ -111,13 +111,9 @@ class BehaviorManager(object):
     
     def step(self):
         try:
-            print("before = %s" % self.__led_values)
             for behavior in self.__overlays:
-                self.__leds_values = behavior.update(self.__led_values)
-            print("step = %s" % self.__led_values)
-            print(type(self.__led_values[0][0]))
-            print(self.__led_values[0][0])
-            self.__led_client.put_pixels(self.__leds_values)
+                self.__led_values = behavior.update(self.__led_values)
+            self.__led_client.put_pixels(self.__led_values)
         except KeyboardInterrupt:
             self._cancel_behaviors()
             raise KeyboardInterrupt
