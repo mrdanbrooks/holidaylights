@@ -6,6 +6,7 @@ from ledcolor import LEDColor
 class StaticOn(Behavior):
     """ Set all the LEDs to the same color """
     def __init__(self, color):
+        print("WARNING: StaticOn is deprecated - use SolidColor instead")
         self.color = color
 
     def init(self, leds):
@@ -181,10 +182,11 @@ class MovingPixel(Behavior):
 
 class Sparkle(Behavior):
     """ Random LEDs briefly flare and then disappear again
-    Assumes 50 lights across 3 windows 
     """
-    def __init__(self, color):
-        self.zones = [range(0,8), range(8,17), range(17,25), range(25,34), range(34, 42), range(42,50)]
+    def __init__(self, color, zone_size=8):
+        self.num_leds = None
+        self.zone_size = zone_size
+        self.zones = list() # [range(0,8), range(8,17), range(17,25), range(25,34), range(34, 42), range(42,50)]
         self.color = LEDColor(color)
         self.current_zone = 1
 
@@ -193,6 +195,14 @@ class Sparkle(Behavior):
         # Number of LEDS in the strand
         self.num_leds = len(leds)
         print("Num Leds = %d" % self.num_leds)
+        num_zones = self.num_leds // self.zone_size
+        print("Num zones = %d" % num_zones)
+        for i in range(0, num_zones):
+            self.zones.append(range(i*self.zone_size, i*self.zone_size + self.zone_size))
+#         if self.num_leds % self.zone_size > 0:
+#             self.zones.append(range(num_zones*self.zone_size, self.num_leds))
+        print(self.zones)
+        
 
         return leds
 

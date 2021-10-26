@@ -3,30 +3,10 @@ from behaviors import *
 
 CLIENT = "neopixel"
 
-def twinkle_wrapper(colors):
-#     import opc
-    import neopixel_client
-    import time
-    import old_twinkle
-
-    client = opc.Client('localhost:7890')
-    client = neopixel_client.NeoPixelClient(100)
-    behavior = old_twinkle.Twinkle(colors)
-    try:
-        while True:
-            leds = behavior.update()
-#             print(leds[:5])
-            client.put_pixels(leds)
-            time.sleep(0.1)
-    except KeyboardInterrupt:
-        behavior.cancel()
-
-
 def new_years():
     manager = BehaviorManager(CLIENT, 100)
     manager.add_behavior_overlay(SolidColor("BLUE"))
-    manager.add_behavior_overlay(Sparkle("WHITE"))
-#     manager.add_behavior_overlay(MovingPixel())
+    manager.add_behavior_overlay(Sparkle("WHITE", zone_size=33))
     manager.loop(0.05)
 
 
@@ -45,10 +25,8 @@ def valentines_day():
 
 def st_patrick():
     manager = BehaviorManager(CLIENT, 100)
-#     manager.add_behavior_overlay(StaticOn("GREEN"))
     manager.add_behavior_overlay(SolidColor("GREEN"))
     manager.add_behavior_overlay(Sparkle("YELLOW"))
-#     manager.add_behavior_overlay(MovingPixel())
     manager.loop(0.2)
 
 
