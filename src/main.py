@@ -23,7 +23,7 @@ def twinkle_wrapper(colors):
 
 
 def new_years():
-    manager = BehaviorManager(CLIENT, 50)
+    manager = BehaviorManager(CLIENT, 100)
     manager.add_behavior_overlay(StaticOn("BLUE"))
     manager.add_behavior_overlay(Sparkle("WHITE"))
 #     manager.add_behavior_overlay(MovingPixel())
@@ -34,7 +34,7 @@ def valentines_day():
     colors = ["OFF",
               "WHITE",
               "PINK",
-              "PINK",
+              "HOTPINK",
               "RED"]
     from twinkle import Twinkle
 
@@ -45,10 +45,11 @@ def valentines_day():
 
 def st_patrick():
     manager = BehaviorManager(CLIENT, 100)
-    manager.add_behavior_overlay(StaticOn("GREEN"))
+#     manager.add_behavior_overlay(StaticOn("GREEN"))
+    manager.add_behavior_overlay(SolidColor("GREEN"))
     manager.add_behavior_overlay(Sparkle("YELLOW"))
 #     manager.add_behavior_overlay(MovingPixel())
-    manager.loop()
+    manager.loop(0.2)
 
 
 def easter():
@@ -57,7 +58,11 @@ def easter():
               "COOLBLUE",
               "LIGHTGREEN",
               "LIGHTPURPLE"]
-    twinkle_wrapper(colors)
+    from twinkle import Twinkle
+    manager = BehaviorManager(CLIENT, 100)
+    manager.add_behavior_overlay(Twinkle(colors, 0.01))
+    manager.loop(0.01)
+
 
 
 def fourthofjuly():
@@ -65,14 +70,22 @@ def fourthofjuly():
               "RED",
               "WHITE",
               "BLUE"]
-    twinkle_wrapper(colors)          
+    from twinkle import Twinkle
+    manager = BehaviorManager(CLIENT, 100)
+    manager.add_behavior_overlay(Twinkle(colors, 0.01))
+    manager.loop(0.01)
+
 
 
 def halloween():
     colors = ["OFF",
               "ORANGE",
               "PURPLE"]
-    twinkle_wrapper(colors)
+    from twinkle import Twinkle
+    manager = BehaviorManager(CLIENT, 100)
+    manager.add_behavior_overlay(Twinkle(colors, 0.01))
+    manager.loop(0.01)
+
 
 
 def thanksgiving():
@@ -80,14 +93,22 @@ def thanksgiving():
               "ORANGE",
               "RED",
               "YELLOW"]
-    twinkle_wrapper(colors)
+    from twinkle import Twinkle
+    manager = BehaviorManager(CLIENT, 100)
+    manager.add_behavior_overlay(Twinkle(colors, 0.01))
+    manager.loop(0.01)
+
 
 
 def christmas():
     colors = ["OFF",
               "RED",
               "GREEN"]
-    twinkle_wrapper(colors)
+    from twinkle import Twinkle
+    manager = BehaviorManager(CLIENT, 100)
+    manager.add_behavior_overlay(Twinkle(colors, 0.01))
+    manager.loop(0.01)
+
 
 
 def rainbow():
@@ -115,23 +136,26 @@ def test_twinkle():
 
 def test_colors():
 #     colors = ["WHITE", "PINK", "RED"]
-    colors = ["RED", "GREEN"]
+#     colors = ["GREEN", "YELLOW"]
+#     colors = ["YELLOW", "PINK","COOLBLUE","LIGHTGREEN","LIGHTPURPLE"]
+#     colors = ["ORANGE","PURPLE","ORANGE","PURPLE"]
+    colors = ["ORANGE","PURPLE","ORANGE","PURPLE"]
     manager = BehaviorManager(CLIENT, 100)
     manager.add_behavior_overlay(TestColorPallet(colors))
     manager.loop(0.01)
 
 if __name__ == "__main__":
 #     test_twinkle()
-    test_colors()
+#     test_colors()
 
-#     rainbow()
-#     candycane()
 #     new_years()
-#     valentines_day()
+    valentines_day()
 #     st_patrick()
 #     easter()
+#     rainbow()
 #     fourthofjuly()
 #     halloween()
 #     thanksgiving()
+#     candycane()
 #     christmas()
 
