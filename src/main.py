@@ -42,6 +42,12 @@ def easter():
     manager.loop(0.01)
 
 
+def rainbow():
+    manager = BehaviorManager(CLIENT, 100)
+    manager.add_behavior_overlay(RainbowColors())
+    manager.add_behavior_overlay(Shifter(1))
+    manager.loop(0.01)
+
 
 def fourthofjuly():
     colors = ["OFF",
@@ -89,12 +95,6 @@ def christmas():
 
 
 
-def rainbow():
-    manager = BehaviorManager(CLIENT, 100)
-    manager.add_behavior_overlay(RainbowColors())
-    manager.add_behavior_overlay(Shifter(1))
-    manager.loop(0.01)
-
 def candycane():
     manager = BehaviorManager(CLIENT, 100)
     manager.add_behavior_overlay(CandyCaneColors(10))
@@ -111,7 +111,6 @@ def test_twinkle():
     manager.add_behavior_overlay(Twinkle(colors, 0.01))
     manager.loop(0.01)
 
-
 def test_colors():
 #     colors = ["WHITE", "PINK", "RED"]
 #     colors = ["GREEN", "YELLOW"]
@@ -126,13 +125,13 @@ if __name__ == "__main__":
 #     test_twinkle()
 #     test_colors()
 
-    new_years()
+#     new_years()
 #     valentines_day()
 #     st_patrick()
 #     easter()
 #     rainbow()
 #     fourthofjuly()
-#     halloween()
+    halloween()
 #     thanksgiving()
 #     candycane()
 #     christmas()
