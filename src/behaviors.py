@@ -32,11 +32,35 @@ class SolidColor(Behavior):
     def update(self, leds):
         for led in leds:
             update_led_value(led, self.color.get_rgb())
-        print("solids = %s" % leds)
         return leds
 
     def cancel(self, leds):
         self.color.set_color("OFF")
+        for led in leds:
+            update_led_value(led, (0, 0, 0))
+        return leds
+
+
+class TestColorPallet(Behavior):
+    """ Test a color pallet by specifying a list of colors
+    manager = BehaviorManager(CLIENT, 100)
+    manager.add_behavior_overlay(TestColorPallet(["WHITE", "PINK", "RED"]))
+    manager.loop(0.01)
+    """
+    def __init__(self, color_names):
+        self.color_pallet = [LEDColor(name) for name in color_names]
+
+    def init(self, leds):
+        return self.update(leds)
+
+    def update(self, leds):
+        for i in range(0, len(self.color_pallet)):
+            leds[i] = self.color_pallet[i].get_rgb()
+        return leds
+
+    def cancel(self, leds):
+        for color in self.color_pallet:
+            color.set_color("OFF")
         for led in leds:
             update_led_value(led, (0, 0, 0))
         return leds
