@@ -133,7 +133,6 @@ class Twinkle(Behavior):
             pixel.update()
 
         values =  [p.rgb_value() for p in self.pixels]
-        print("values = %s" % values)
         return values
 
     def cancel(self, leds):
