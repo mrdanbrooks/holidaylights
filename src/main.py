@@ -66,8 +66,10 @@ def halloween():
               "ORANGE",
               "PURPLE"]
     from twinkle import Twinkle
+    from deamoneyes import DeamonEyes
     manager = BehaviorManager(CLIENT, 100)
     manager.add_behavior_overlay(Twinkle(colors, 0.01))
+    manager.add_behavior_overlay(DeamonEyes(0.01))
     manager.loop(0.01)
 
 
