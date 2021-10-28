@@ -50,6 +50,17 @@ class LEDColor(object):
         self._brightness = COLORS[name][2]
         self._max_brightness = COLORS[name][2]
 
+    def set_color_by_rgb_value(self, rgb):
+        """ set values using [r, g, b] 0-255 """
+        r, g, b = [x / 255 for x in rgb]
+        hue, sat, val = colorsys.rgb_to_hsv(r, g, b)
+        self._hue = hue * 360.0
+        self._saturation = sat
+        self._brightness = val
+        self._max_brightness = val
+        self._name = "RGBVALUE"
+
+
     def set_brightness(self, value):
         """ value: 0.0 - 1.0, scales to max brightness"""
         if value > 1.0:
