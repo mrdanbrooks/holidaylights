@@ -3,7 +3,7 @@ import random
 from ledcolor import LEDColor
 
 class EyePixelFader(object):
-    def __init__(self, update_rate, mask_size=7):
+    def __init__(self, update_rate, mask_size=9):
         self._behavior = { "OFF": self._do_off,     # Show background color
                            "DIM": self._do_dim,     # Reduce background color
                            "UP": self._do_up,       # brighten target color
@@ -19,6 +19,8 @@ class EyePixelFader(object):
 #         self._right_eye_background_color = LEDColor("OFF")
 
         # Mask Code
+        print("Mask Size= %d" % mask_size)
+        assert(mask_size >= 7)  # buf buf eye buf eye buf buf
         self._mask_size = mask_size
         self._pixel_mask_background_colors = list()
         for i in range(0, self._mask_size):
@@ -28,8 +30,8 @@ class EyePixelFader(object):
 
         # Constant Parameters
         self._delta = 0.1  # constant brightness step size
-        self._static_on_time = 3
-        self._static_wait_time = 3
+        self._static_on_time = 8
+        self._static_wait_time = 15
 
         self._reset()
         
@@ -43,7 +45,7 @@ class EyePixelFader(object):
         self._brightness = 1.0
 
     def _do_dim(self):
-        self._brightness -= self._delta
+        self._brightness -= (self._delta / 30)
         if self._brightness < 0.0:
             self._brightness = 0.0
             self._state = "UP"
@@ -145,25 +147,24 @@ class EyePixelFader(object):
         output_rgb_values = list()
         for i in range(0, self._mask_size):
             output_rgb_values.append( [0, 0, 0] if self._state in ["UP", "ON", "DOWN"] else self._pixel_mask_background_colors[i].get_rgb())
-        output_rgb_values[1] = self._color.get_rgb() if self._state in ["UP","ON","DOWN"] else self._pixel_mask_background_colors[1].get_rgb()
-        output_rgb_values[-2] = self._color.get_rgb() if self._state in ["UP","ON","DOWN"] else self._pixel_mask_background_colors[-2].get_rgb()
+        output_rgb_values[2] = self._color.get_rgb() if self._state in ["UP","ON","DOWN"] else self._pixel_mask_background_colors[2].get_rgb()
+        output_rgb_values[-3] = self._color.get_rgb() if self._state in ["UP","ON","DOWN"] else self._pixel_mask_background_colors[-3].get_rgb()
         return output_rgb_values
 
 
 
 class DeamonEyes(Behavior):
-    def __init__(self, update_rate, seperation=4):
+    def __init__(self, update_rate, mask_size=9):
         self.update_rate = update_rate
         self.num_leds = None
         self.left_eye_location = 90  # Lower value index for eye pair
 #         self.seperation = seperation # eye pair index offset (gets added to location)
 
-        self.mask_size = seperation + 4 # + 2 eyes + 2 buffer pixels
+        self.mask_size = mask_size # + 2 eyes + 4 buffer pixels + min 1 seperation (min 7 total)
         self.eye_pixel_fader = EyePixelFader(update_rate, self.mask_size)
 
     def init(self, leds):
         self.num_leds = len(leds)
-#         self.eye_pixel_fader.set_background_colors(leds[self.left_eye_location], leds[self.left_eye_location + self.seperation])
         return leds
 
     def update(self, leds):
@@ -172,9 +173,9 @@ class DeamonEyes(Behavior):
         self.eye_pixel_fader.set_mask_led_background_colors(leds[self.left_eye_location:self.left_eye_location + self.mask_size])
 
         if self.eye_pixel_fader.get_state() == "OFF":
-            # Select new location
+            # Select new location, but keep the eyes at least 10 pixels away from the edges of the strand
 #             self.left_eye_location = random.choice(range(60, self.num_leds - self.seperation -1))
-            self.left_eye_location = random.choice(range(60, self.num_leds - self.mask_size -1))
+            self.left_eye_location = random.choice(range(10, self.num_leds - self.mask_size - 10))
             self.eye_pixel_fader.start("RED")
 
         # Calculate new state and brightness values
