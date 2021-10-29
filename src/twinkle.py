@@ -50,11 +50,12 @@ class Pixel(object):
         if self._brightness < 0.0:
             self._brightness = 0.0
             self._state = "WAIT"
-            self._delay_time = self._static_wait_time + random.choice([0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
+#             self._delay_time = self._static_wait_time + random.choice([0.0, 0.1, 0.2, 0.3, 0.4, 0.5])
+            self._delay_time = 0.0
 
     def _do_wait(self):
         self._delay_time -= self._update_rate
-        if self._delay_time < 0:
+        if self._delay_time <= 0:
             self._delay_time = 0.0
             self._state = "OFF"
 
