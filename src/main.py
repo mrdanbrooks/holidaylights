@@ -3,6 +3,8 @@ from behaviors import *
 
 CLIENT = "neopixel"
 
+
+
 def new_years():
     manager = BehaviorManager(CLIENT, 100)
     manager.add_behavior_overlay(SolidColor("BLUE"))
@@ -103,6 +105,35 @@ def candycane():
     manager.add_behavior_overlay(Shifter(1))
     manager.loop(0.08)
 
+
+def auto_calendar():
+    print("Auto Select from Calendar:")
+    from datetime import date
+    today = date.today()
+    year = today.year
+    calendar = {(date(year,  1,  1), date(year,  1, 10)): new_years,
+                (date(year,  2,  1), date(year,  2, 18)): valentines_day,
+                (date(year,  3,  1), date(year,  3, 25)): st_patrick,
+                (date(year,  4,  1), date(year,  3, 25)): easter,
+                (date(year,  6,  1), date(year,  6, 30)): rainbow,
+                (date(year,  7,  1), date(year,  7, 10)): fourthofjuly,
+                (date(year, 10,  1), date(year, 11,  5)): halloween,
+                (date(year, 11,  6), date(year, 12,  1)): thanksgiving,
+                (date(year, 12,  2), date(year, 12, 30)): christmas,
+                (date(year, 12, 31), date(year+1, 1, 1)): new_years
+                }
+    event = None
+    for date_range in calendar.keys():
+        begin_date, end_date = date_range
+        if begin_date <= today <= end_date:
+            event = calendar[date_range]
+    print(event)
+    # Call Event if it exists
+    if event:
+        event()
+                        
+
+
 def test_twinkle():
     from twinkle import Twinkle
     colors = ["OFF",
@@ -127,13 +158,14 @@ if __name__ == "__main__":
 #     test_twinkle()
 #     test_colors()
 
+    auto_calendar()
 #     new_years()
 #     valentines_day()
 #     st_patrick()
 #     easter()
 #     rainbow()
 #     fourthofjuly()
-    halloween()
+#     halloween()
 #     thanksgiving()
 #     candycane()
 #     christmas()
