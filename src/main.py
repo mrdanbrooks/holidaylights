@@ -117,8 +117,8 @@ def auto_calendar():
                 (date(year,  4,  1), date(year,  3, 25)): easter,
                 (date(year,  6,  1), date(year,  6, 30)): rainbow,
                 (date(year,  7,  1), date(year,  7, 10)): fourthofjuly,
-                (date(year, 10,  1), date(year, 11,  5)): halloween,
-                (date(year, 11,  6), date(year, 12,  1)): thanksgiving,
+                (date(year, 10,  1), date(year, 11,  3)): halloween,
+                (date(year, 11,  4), date(year, 12,  1)): thanksgiving,
                 (date(year, 12,  2), date(year, 12, 30)): christmas,
                 (date(year, 12, 31), date(year+1, 1, 1)): new_years
                 }
