@@ -89,6 +89,12 @@ def thanksgiving():
 
 
 def christmas():
+    christmas_chasers()
+#     christmas_twinkle()
+#     christmas_candycane()
+
+
+def christmas_twinkle():
     colors = ["OFF",
               "RED",
               "GREEN"]
@@ -98,8 +104,20 @@ def christmas():
     manager.loop(0.01)
 
 
+def christmas_chasers():
+    manager = BehaviorManager(CLIENT, 50)
+    manager.add_behavior_overlay(SolidColor("OFF"))
+    manager.add_behavior_overlay(AddChasers("RED", 1))
+    manager.add_behavior_overlay(AddChasers("GREEN", -1))
 
-def candycane():
+#     manager.add_behavior_overlay(SeedChasers("RED", 1))
+#     manager.add_behavior_overlay(SeedChasers("GREEN", -1, offset=3))
+#     manager.add_behavior_overlay(ColorShifter("RED", 1))
+#     manager.add_behavior_overlay(ColorShifter("GREEN", -1))
+    manager.loop(0.5)
+
+
+def christmas_candycane():
     manager = BehaviorManager(CLIENT, 100)
     manager.add_behavior_overlay(CandyCaneColors(10))
     manager.add_behavior_overlay(Shifter(1))

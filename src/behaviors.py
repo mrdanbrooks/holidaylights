@@ -2,6 +2,7 @@ from overlay import *
 import random
 import colorsys
 from ledcolor import LEDColor
+from collections import deque # For Chasers
 
 class StaticOn(Behavior):
     """ Set all the LEDs to the same color """
@@ -120,6 +121,122 @@ class CandyCaneColors(Behavior):
         return leds
 
 
+# SolidColor("OFF")
+# AddChasers("RED", 1)
+class AddChasers(Behavior):
+    """ Spawns color pixels that move in a direction """
+    def __init__(self, color, direction, offset=0, spacing=4):
+        """
+        direction: 1=right, -1=left
+        offset: distance from first or last LED to start chasers
+        spacing: distance between lit up pixels
+        """
+        assert(direction in [1, -1])
+        self.color = LEDColor(color)
+        self.direction = direction
+        self.offset = offset
+        self.spacing = spacing
+        self.led_positions = None # [True, False, False, ...
+        
+
+    def init(self, leds):
+        self.num_leds = len(leds)
+        self.led_positions = deque([False]*self.num_leds)
+        # Initialize positions of LEDS
+        if self.direction == 1:
+            for i in range(0 + self.offset, self.num_leds - 1, self.spacing):
+                self.led_positions[i] = True
+        else:
+            for i in range(self.num_leds - self.offset - 1, 0, -self.spacing):
+                self.led_positions[i] = True
+        return leds
+
+    def update(self, leds):
+        # Rotate led positions 
+        self.led_positions.rotate(self.direction)
+
+        for i in range(0, self.num_leds):
+            if self.led_positions[i] == True:
+                leds[i] = self.color.get_rgb()
+        return leds
+
+    def cancel(self, leds):
+        for led in leds:
+            update_led_value(led, (0, 0, 0))
+        return leds
+                
+
+# class SeedChasers(Behavior):
+#     def __init__(self, color, direction, offset=0, spacing=5):
+#         """
+#         direction: 1=right, -1=left
+#         offset: distance from first or last LED to start chasers
+#         spacing: distance between lit up pixels
+#         """
+#         assert(direction in [1, -1])
+#         self.color = LEDColor(color)
+#         self.direction = direction
+#         self.offset = offset
+#         self.spacing = spacing
+#         
+# 
+#     def init(self, leds):
+#         self.num_leds = len(leds)
+#         # Initialize positions of LEDS
+#         if self.direction == 1:
+#             for i in range(0 + self.offset, self.num_leds, self.spacing):
+#                 leds[i] = self.color.get_rgb()
+#         else:
+#             for i in range(self.num_leds - self.offset -1, -1, -self.spacing):
+#                 leds[i] = self.color.get_rgb()
+#         return leds
+# 
+#     def update(self, leds):
+#         """ No-op """
+#         return leds
+# 
+#     def cancel(self, leds):
+#         for led in leds:
+#             update_led_value(led, [0, 0, 0])
+#         return leds
+#  
+# 
+# # Class ColorShifter(color, direction)
+# class ColorShifter(Behavior):
+#     def __init__(self, color, direction):
+#         assert(direction in [1, -1])
+#         self.color = LEDColor(color)
+#         self.off_color = LEDColor("OFF")
+#         self.dir = direction
+#         self.num_leds = None
+# 
+#     def init(self, leds):
+#         self.num_leds = len(leds)
+#         return leds
+# 
+# 
+#     def update(self, leds):
+#         color = self.color.get_rgb()
+#         if self.dir == 1:
+#             for i in range(0, self.num_leds):
+#                 if leds[i][0] == color[0] and leds[i][1] == color[1] and leds[i][2] == color[2]:
+#                     leds[(i - 1) % self.num_leds] = [color[0], color[1], color[2]]
+#                     print("i=%d  i-1=%d" % (i, ((i - 1) % self.num_leds)))
+#                     leds[i] = self.off_color.get_rgb()
+#         else:
+#             for i in range(self.num_leds - 1, -1, -1):
+#                 if leds[i][0] == color[0] and leds[i][1] == color[1] and leds[i][2] == color[2]:
+#                     leds[(i + 1) % self.num_leds] = [color[0], color[1], color[2]]
+#                     print("i=%d  i+1=%d" % (i, ((i + 1) % self.num_leds)))
+#                     leds[i] = self.off_color.get_rgb()
+#         print("\n\n")
+#         return leds
+# 
+#     def cancel(self, leds):
+#         for led in leds:
+#             update_led_value(led, [0, 0, 0])
+#         return leds
+#  
 
 
 # Class Shifter(direction, speed)
