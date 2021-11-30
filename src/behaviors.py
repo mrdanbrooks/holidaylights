@@ -144,10 +144,10 @@ class AddChasers(Behavior):
         self.led_positions = deque([False]*self.num_leds)
         # Initialize positions of LEDS
         if self.direction == 1:
-            for i in range(0 + self.offset, self.num_leds - 1, self.spacing):
+            for i in range(0 + self.offset, self.num_leds, self.spacing):
                 self.led_positions[i] = True
         else:
-            for i in range(self.num_leds - self.offset - 1, 0, -self.spacing):
+            for i in range(self.num_leds - self.offset - 1, -1, -self.spacing):
                 self.led_positions[i] = True
         return leds
 
