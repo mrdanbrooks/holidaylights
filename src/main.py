@@ -89,8 +89,8 @@ def thanksgiving():
 
 
 def christmas():
-#     christmas_chasers()
-    christmas_multicolor_chasers()
+    christmas_chasers()
+#     christmas_multicolor_chasers()
 #     christmas_twinkle()
 #     christmas_candycane()
 
