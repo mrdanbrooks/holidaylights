@@ -125,7 +125,7 @@ class CandyCaneColors(Behavior):
 # AddChasers("RED", 1)
 class AddChasers(Behavior):
     """ Spawns color pixels that move in a direction """
-    def __init__(self, color, direction, offset=0, spacing=4):
+    def __init__(self, color, direction, offset=0, spacing=6):
         """
         direction: 1=right, -1=left
         offset: distance from first or last LED to start chasers
