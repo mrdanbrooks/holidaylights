@@ -105,7 +105,7 @@ def christmas_twinkle():
 
 
 def christmas_chasers():
-    manager = BehaviorManager(CLIENT, 50)
+    manager = BehaviorManager(CLIENT, 100)
     manager.add_behavior_overlay(SolidColor("OFF"))
     manager.add_behavior_overlay(AddChasers("RED", 1))
     manager.add_behavior_overlay(AddChasers("GREEN", -1))
