@@ -118,7 +118,7 @@ def christmas_chasers():
 
 
 def christmas_multicolor_chasers():
-    manager = BehaviorManager(CLIENT, 50)
+    manager = BehaviorManager(CLIENT, 100)
     manager.add_behavior_overlay(SolidColor("OFF"))
     manager.add_behavior_overlay(AddChasers("RED", 1, spacing=5))
     manager.add_behavior_overlay(AddChasers("GREEN", 1, offset=1, spacing=5))
