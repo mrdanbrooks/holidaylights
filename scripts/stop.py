@@ -1,7 +1,7 @@
 from xmlrpc.client import ServerProxy
 
 def stop_lights():
-    server = ServerProxy("http://lowerledcontroller.danland.net:80/RPC2")
+    server = ServerProxy("http://localhost:80/RPC2")
     proc_info = server.supervisor.getProcessInfo("lights")
     print(proc_info['statename'])
     if proc_info["statename"] == "RUNNING":
