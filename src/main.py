@@ -1,5 +1,6 @@
 from overlay import *
 from behaviors import *
+from led_power_service import LEDPowerClient
 
 CLIENT = "neopixel"
 
@@ -182,7 +183,7 @@ def test_colors():
     manager.add_behavior_overlay(TestColorPallet(colors))
     manager.loop(0.01)
 
-if __name__ == "__main__":
+def main():
 #     test_twinkle()
 #     test_colors()
 
@@ -197,4 +198,15 @@ if __name__ == "__main__":
 #     thanksgiving()
 #     candycane()
 #     christmas()
+
+if __name__ == "__main__":
+    power = LEDPowerClient()
+    if power.enable():
+        print("LED Power Enabled")
+    try:
+        main()
+    finally:
+        if power.disable():
+            print("LED Power Disabled")
+
 
