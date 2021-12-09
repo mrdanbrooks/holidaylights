@@ -13,6 +13,7 @@ fi
 
 # Link config files to supervisor
 sudo ln -s $DIR/../supervisor/shutdown_service.conf /etc/supervisor/conf.d/shutdown_service.conf
+sudo ln -s $DIR/../supervisor/led_power_service.conf /etc/supervisor/conf.d/led_power_service.conf
 
 # restart supervisor
 sudo systemctl restart supervisor.service
