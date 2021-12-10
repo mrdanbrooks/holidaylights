@@ -40,7 +40,7 @@ class Timer(object):
 
         def fire_and_restart(self):
             print("resetting")
-	    self._cbfun()
+            self._cbfun()
             print("reset")
 
         def _start_timer(self):
