@@ -15,10 +15,11 @@ then
     sudo apt-get install python3-paho-mqtt
 fi
 
+echo "!!!IMPORTANT!!! Have you edited mqtt.conf yet?"
 
 
 # Link config files to supervisor
-# sudo ln -s $DIR/../supervisor/shutdown_service.conf /etc/supervisor/conf.d/shutdown_service.conf
+sudo ln -s $DIR/../supervisor/mqtt_service.conf /etc/supervisor/conf.d/mqtt_service.conf
 
 # restart supervisor
-# sudo systemctl restart supervisor.service
+sudo systemctl restart supervisor.service
