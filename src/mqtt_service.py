@@ -215,7 +215,6 @@ class MQTTSwitchService(object):
 
 
         # Check process state using XMLRPC and send Home Assistant update over MQTT
-        print("Retreiving supervisor status")
         proc_info = False
         try:
             proc_info = self.supervisor_client.supervisor.getProcessInfo("lights")
@@ -233,10 +232,8 @@ class MQTTSwitchService(object):
         self.mqtt_client.publish(self.availability_topic, AVAILABLE)
         if proc_info["statename"] != "RUNNING":
             data = PAYLOAD_OFF
-            print("supervisor status: OFF")
         else:
             data = PAYLOAD_ON
-            print("supervisor status: ON")
         self.mqtt_client.publish(self.state_topic, data)
 
 
