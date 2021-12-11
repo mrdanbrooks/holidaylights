@@ -28,6 +28,7 @@ class Timer(object):
             self._running = True
             self._spin = True  # This is for the spin() function
             self._lock = threading.RLock()
+            self._cb_thread = None   # Used for fire_and_restart
 
         def start(self):
             self._running = True
@@ -39,9 +40,9 @@ class Timer(object):
                 self._stop_timer()
 
         def fire_and_restart(self):
-            print("resetting")
-            self._cbfun()
-            print("reset")
+            self._cb_thread = threading.Thread(target=self._cbfun)
+            self._cb_thread.start()
+#             self._cbfun()
 
         def _start_timer(self):
             if not self._running:
@@ -61,3 +62,5 @@ class Timer(object):
                 self._stop_timer()
                 self._cb()
                 self._start_timer()
+                if self._cb_thread:
+                    self._cb_thread = None
