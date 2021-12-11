@@ -1,3 +1,32 @@
+#
+# mqtt_service.py
+# [db] 2021-12-10
+# 
+# Exposes Supervisord control of 'lights' process to Home Assistant over MQTT
+#
+# PREREQUESITES:
+# - Make sure MQTT Mosquitto broker is installed and configured on Home Assistant
+#
+# INSTALL
+# 1) Edit mqtt.conf
+# 2) Make sure git does not try to save your secrets
+#    git update-index --assume-unchanged src/mqtt.conf
+# 3) install dependencies and service by running
+#    ./scripts/install_mqtt_service.sh
+# 4) Edit Home Assistant configuration.yaml
+#     switch:
+#       - platform: mqtt
+#         unique_id: <hostname>
+#         name: "Upper LEDs"
+#         state_topic: "smartlights/<hostname>"
+#         command_topic: "smartlights/<hostname>/set"
+#         availability:
+#           - topic: "smartlights/<hostname>/available"
+#         payload_on: "ON"
+#         payload_off: "OFF"
+#         state_on: "ON"
+#         state_off: "OFF"
+
 import configparser
 import os
 import socket # For gethostname()
@@ -85,9 +114,11 @@ class MQTTClient(object):
         self._mqttc.publish(topic, value, qos=2, retain=True)
 
 def test_mqttclient():
+    """ Example of how to use MQTTClient without additional XMLRPC code """
     def printer(topic, data):
         print("here is %s" % data)
 
+    # Don't store credentials in code
     config = configparser.ConfigParser()
     config.read_file(open(os.path.join(SCRIPT_DIR,"mqtt.conf")))
     broker = config["mqtt"]["broker"]
@@ -95,13 +126,13 @@ def test_mqttclient():
     user = config["mqtt"]["user"]
     password = config["mqtt"]["password"]
 
-    client = MQTTClient(broker, 
-                        port, 
-                        "testclient", 
-                        user, 
-                        password)
+    # Client setup
+    client = MQTTClient(broker, port, "testclient", user, password)
     client.subscribe("test/dan", printer)
+
+    # Start Client
     client.start()
+
     val = 0
     try:
         while True:
@@ -111,7 +142,12 @@ def test_mqttclient():
     except KeyboardInterrupt:
         pass
     finally:
+        # Stop Client
         client.stop()
+
+
+
+
 
 class MQTTSwitchService(object):
     def __init__(self, broker, port, user, password):
@@ -128,7 +164,6 @@ class MQTTSwitchService(object):
 
         # Setup MQTT publishing timer
         self.publish_update_timer = Timer(STATUS_UPDATE_RATE, self._publish_update)
-        self.publish_update_timer.start()
 
     def _set_callback(self, topic, data):
         """ called when .../set receives data to turn switch on or off """
@@ -193,7 +228,6 @@ class MQTTSwitchService(object):
             print("ERROR: caught XMLRPC ERROR - investigate")
             proc_info = False
         
-        
         if not proc_info:
             # If XMLRPC is not available, list device as unavailable
             self.mqtt_client.publish(self.availability_topic, UNAVAILABLE)
@@ -211,6 +245,8 @@ class MQTTSwitchService(object):
 
 
     def run(self):
+        """ Main Service Loop """
+        self.publish_update_timer.start()
         self.mqtt_client.start()
         try:
             while True:
@@ -222,12 +258,15 @@ class MQTTSwitchService(object):
             self.mqtt_client.stop()
 
 def main():
+    # Read Credentials
     config = configparser.ConfigParser()
     config.read_file(open(os.path.join(SCRIPT_DIR,"mqtt.conf")))
     broker = config["mqtt"]["broker"]
     port = int(config["mqtt"]["port"])
     user = config["mqtt"]["user"]
     password = config["mqtt"]["password"]
+
+    # Run Service
     client = MQTTSwitchService(broker, port, user, password)
     client.run()
 
