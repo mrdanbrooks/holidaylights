@@ -158,76 +158,72 @@ class MQTTSwitchService(object):
     
         # Setup MQTT connection to Home Assistant
         self.mqtt_client = MQTTClient(broker, port, self.hostname, user, password)
-        self.mqtt_client.subscribe(TOPIC_PREFIX + self.hostname + "/set", self._set_callback)
+        self.mqtt_client.subscribe(TOPIC_PREFIX + self.hostname + "/set", self._set_state_callback)
         self.state_topic = TOPIC_PREFIX + self.hostname
         self.availability_topic = TOPIC_PREFIX + self.hostname + "/available"
 
         # Setup MQTT publishing timer
-        self.publish_update_timer = Timer(STATUS_UPDATE_RATE, self._publish_update)
+        self.xmlrpc_update_timer = Timer(STATUS_UPDATE_RATE, self._xmlrpc_update)
 
-    def _set_callback(self, topic, data):
+        # XMLRPC Commands getting process info are pretty fast, but startProcesss() and stopProcess()
+        # can take a long time to return. This results in HomeAssistant switches flip/flopping back
+        # to their previous state when they fail to get a quick update that state has successfully changed.
+        # We will assume process control calls succeed and send the expected state back to HA, then run the actual
+        # XMLRPC commands to set process control in a seperate thread. If the process control fails,
+        # this will be caught by the periodic xmlrpc_update_timer which will detect the actual process
+        # state and send a corrected state to HA.
+        self._xmlrpc_cmd_queue = list()
+
+    def _set_state_callback(self, topic, data):
         """ called when .../set receives data to turn switch on or off """
-        try:
-            if data.decode('utf-8') == PAYLOAD_ON:
-                print("Requesting Supervisor lights ON")
-                # Stop the updater from sending while we are changing process state
-                print("Cancel updater")
-                self.publish_update_timer.cancel()
-                # Send anticipated state back
-                print("Send State ON")
-                self.mqtt_client.publish(self.state_topic, PAYLOAD_ON)
-                time.sleep(0.5)
-                # Call Process to Start - this might take a while
-                # TODO: This needs to happen in a thread because it is causing
-                # the callback to take too long, and switch on the server is not responding
-                self.supervisor_client.supervisor.startProcess("lights")
-            elif data.decode('utf-8') == PAYLOAD_OFF:
-                print("Requesting Supervisor lights OFF")
-                # Stop the updater from sending while we are changing process state
-                self.publish_update_timer.cancel()
-                # Send anticipated state back
-                print("Send State OFF")
-                self.mqtt_client.publish(self.state_topic, PAYLOAD_OFF)
-                # Call Process to Stop - this might take a while
-                self.supervisor_client.supervisor.stopProcess("lights")
-            else:
-                print("ERROR: Did not understand payload '%s'" % data)
-        except socket.timeout:
-            print("WARNING: LEDPowerClient() Timeout waiting for reply")
-        except ConnectionRefusedError:
-            print("WARNING: LEDPowerClient() Unable to connect to server")
-        except http.client.CannotSendRequest:
-            print("WARNING: LEDPowerClient() Cannot send xmlrpc request to server")
-        except:
-            print("ERROR: caught XMLRPC ERROR - investigate")
-        finally:
-            # Immediately query and publish new state
-            print("Publish update")
-            self._publish_update()
-            # restart the update timer
-            print("Restart timer")
-            self.publish_update_timer.start()
- 
-    def _publish_update(self):
-        """  Sends updates about the device status
-        called by publish_update_timer
-        """
+        if data.decode('utf-8') == PAYLOAD_ON:
+            print("Requesting Supervisor lights ON")
+            # Send anticipated state back
+            self.mqtt_client.publish(self.state_topic, PAYLOAD_ON)
+            # Add PAYLOAD_ON to xmlrpc queue
+            self._xmlrpc_cmd_queue.append(PAYLOAD_ON)
+            # Immediately run xmlrpc update
+            self.xmlrpc_update_timer.fire_and_restart()
+        elif data.decode('utf-8') == PAYLOAD_OFF:
+            print("Requesting Supervisor lights OFF")
+            # Send anticipated state back
+            self.mqtt_client.publish(self.state_topic, PAYLOAD_OFF)
+            # Add PAYLOAD_OFF to xmlrpc queue
+            self._xmlrpc_cmd_queue.append(PAYLOAD_OFF)
+            # Immediately run xmlrpc update
+            self.xmlrpc_update_timer.fire_and_restart()
+        else:
+            print("ERROR: Did not understand payload '%s'" % data)
+
+
+    def _xmlrpc_update(self): 
+        """  Makes long running XMLRPC commands and sends updates about the device status back on MQTT """
+        # Check if there are process control commands to run
+        while self._xmlrpc_cmd_queue:
+            cmd = self._xmlrpc_cmd_queue.pop(0)
+            try:
+                if cmd == PAYLOAD_ON:
+                    # Call Process to Start - this might take a while
+                    self.supervisor_client.supervisor.startProcess("lights")
+                elif cmd == PAYLOAD_OFF:
+                    # Call Process to Stop - this might take a while
+                    self.supervisor_client.supervisor.stopProcess("lights")
+            except (socket.timeout, ConnectionRefusedError, http.client.CannotSendRequest) as e:
+                print("WARNING: %s" % str(e))
+            except Exception as e:
+                print("ERROR: %s while calling XMLRPC - investigate" % str(e))
+
+
+        # Check process state using XMLRPC and send Home Assistant update over MQTT
         print("Retreiving supervisor status")
+        proc_info = False
         try:
             proc_info = self.supervisor_client.supervisor.getProcessInfo("lights")
-        except socket.timeout:
-            print("WARNING: LEDPowerClient() Timeout waiting for reply")
-            proc_info = False
-        except ConnectionRefusedError:
-            print("WARNING: LEDPowerClient() Unable to connect to server")
-            proc_info = False
-        except http.client.CannotSendRequest:
-            print("WARNING: LEDPowerClient() Cannot send xmlrpc request to server")
-            proc_info = False
-        except:
-            print("ERROR: caught XMLRPC ERROR - investigate")
-            proc_info = False
-        
+        except (socket.timeout, ConnectionRefusedError, http.client.CannotSendRequest) as e:
+            print("WARNING: %s" % str(e))
+        except Exception as e:
+            print("ERROR: %s while calling XMLRPC - investigate" % str(e))
+
         if not proc_info:
             # If XMLRPC is not available, list device as unavailable
             self.mqtt_client.publish(self.availability_topic, UNAVAILABLE)
@@ -246,7 +242,7 @@ class MQTTSwitchService(object):
 
     def run(self):
         """ Main Service Loop """
-        self.publish_update_timer.start()
+        self.xmlrpc_update_timer.start()
         self.mqtt_client.start()
         try:
             while True:
@@ -254,7 +250,7 @@ class MQTTSwitchService(object):
         except KeyboardInterrupt:
             pass
         finally:
-            self.publish_update_timer.cancel()
+            self.xmlrpc_update_timer.cancel()
             self.mqtt_client.stop()
 
 def main():
