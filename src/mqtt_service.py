@@ -90,6 +90,10 @@ class MQTTClient(object):
         # print("Received:" + msg.topic + ": " + str(msg.payload))
         self._subscriptions[msg.topic](msg.topic, msg.payload)
 
+    def set_will(self, topic, value):
+        """ set a last will """
+        self._mqttc.will_set(topic, value, qos=2, retain=True)
+
     def start(self):
         """ start background looping thread """
         # Use connect_async() instead of connect() so that the command does not fail if 
@@ -161,6 +165,7 @@ class MQTTSwitchService(object):
         self.mqtt_client.subscribe(TOPIC_PREFIX + self.hostname + "/set", self._set_state_callback)
         self.state_topic = TOPIC_PREFIX + self.hostname
         self.availability_topic = TOPIC_PREFIX + self.hostname + "/available"
+        self.mqtt_client.set_will(self.availability_topic, UNAVAILABLE)
 
         # Setup MQTT publishing timer
         self.xmlrpc_update_timer = Timer(STATUS_UPDATE_RATE, self._xmlrpc_update)
