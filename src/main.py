@@ -160,6 +160,8 @@ def auto_calendar():
     # Call Event if it exists
     if event:
         event()
+    else:
+        print("No holiday event detected for today's date. Exiting")
                         
 
 
