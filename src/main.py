@@ -142,8 +142,8 @@ def auto_calendar():
     year = today.year
     calendar = {(date(year,  1,  1), date(year,  1, 10)): new_years,
                 (date(year,  2,  1), date(year,  2, 18)): valentines_day,
-                (date(year,  3,  1), date(year,  3, 25)): st_patrick,
-                (date(year,  4,  1), date(year,  3, 25)): easter,
+                (date(year,  3,  1), date(year,  3, 19)): st_patrick,
+                (date(year,  4,  1), date(year,  3, 19)): easter,
                 (date(year,  6,  1), date(year,  6, 30)): rainbow,
                 (date(year,  7,  1), date(year,  7, 10)): fourthofjuly,
                 (date(year, 10,  1), date(year, 11,  3)): halloween,
