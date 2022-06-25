@@ -1,3 +1,5 @@
+import os
+os.environ["PYGAME_HIDE_SUPPORT_PROMPT"] = "hide"
 import pygame
 
 LED_SIZE = 10  # Diameter of LED
