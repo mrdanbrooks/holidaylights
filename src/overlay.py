@@ -1,5 +1,5 @@
-import opc
-import neopixel_client
+# import opc
+# import neopixel_client
 import time
 import colorsys
 
@@ -75,6 +75,7 @@ class BehaviorManager(object):
 
         # Connection to LED controller
         if client == "opc":
+            import opc
             class OPCWrapper(opc.Client):
                 def put_pixels(self, pixels, channel=0):
                     #TODO: rearrange rgb to grb
@@ -82,7 +83,11 @@ class BehaviorManager(object):
 #             self.__led_client = opc.Client('localhost:7890')
             self.__led_client = OPCWrapper('localhost:7890')
         elif client == "neopixel":
+            import neopixel_client
             self.__led_client = neopixel_client.NeoPixelClient(num_lights)
+        elif client == "sim":
+            from sim_lights import SimLights
+            self.__led_client = SimLights(num_lights)
 
 
     def _cancel_behaviors(self):
