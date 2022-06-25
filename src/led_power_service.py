@@ -1,4 +1,17 @@
-import RPi.GPIO as GPIO
+try:
+    import RPi.GPIO as GPIO
+except ModuleNotFoundError:
+    print("WARNING: Could NOT Import GPIO, using Fake")
+    class GPIO(object):
+        def setmode(self, arg1):
+            pass
+        def setup(self, arg1, arg2):
+            pass
+        def cleanup(self):
+            pass
+        def output(self, arg1, arg2):
+            pass
+
 import socket
 import time
 import xmlrpc.client
