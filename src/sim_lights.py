@@ -33,9 +33,13 @@ class SimLights(object):
         x_pos = SPACING + (LED_SIZE + SPACING) * led_pos + LED_SIZE/2.0
         y_pos = SPACING + LED_SIZE/2.0
         radius = LED_SIZE / 2.0
-        fill = 1 if color == (0, 0, 0) else 0
-        color = color if not color == (0, 0, 0) else COLOR_OFF
-        pygame.draw.circle(self.screen, color, (x_pos, y_pos), radius, fill)
+        if color == (0,0,0):
+            # fill with black first
+            pygame.draw.circle(self.screen, color, (x_pos, y_pos), radius, 0)
+            # Then draw outline
+            pygame.draw.circle(self.screen, COLOR_OFF, (x_pos, y_pos), radius, 1)
+        else:
+            pygame.draw.circle(self.screen, color, (x_pos, y_pos), radius, 0)
 
     def put_pixels(self, led_values):
         # Truncate LED to length we can display
