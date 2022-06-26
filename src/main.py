@@ -3,6 +3,7 @@ from behaviors import *
 from led_power_service import LEDPowerClient
 
 CLIENT = "neopixel"
+# CLIENT = "sim"
 
 
 
@@ -52,7 +53,7 @@ def rainbow():
     manager.loop(0.01)
 
 
-def fourthofjuly():
+def fourthofjuly_twinkle():
     colors = ["OFF",
               "RED",
               "WHITE",
@@ -62,6 +63,14 @@ def fourthofjuly():
     manager.add_behavior_overlay(Twinkle(colors, 0.01))
     manager.loop(0.01)
 
+def fourthofjuly_flag():
+    from flag import Flag,TriColorFlag
+    manager = BehaviorManager(CLIENT, 100)
+    manager.add_behavior_overlay(Flag(100))
+    manager.loop(0.01)
+
+def fourthofjuly():
+    fourthofjuly_flag()
 
 
 def halloween():
