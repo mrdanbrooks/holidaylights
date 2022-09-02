@@ -73,6 +73,12 @@ def fourthofjuly():
     fourthofjuly_flag()
 
 
+def labor_day():
+    manager = BehaviorManager(CLIENT, 100)
+    manager.add_behavior_overlay(SolidColor("RED"))
+    manager.loop(0.2)
+
+
 def halloween():
     colors = ["OFF",
               "ORANGE",
@@ -156,6 +162,7 @@ def auto_calendar():
                 (date(year,  4,  18), date(year,  4, 18)): fourthofjuly,
                 (date(year,  6,  1), date(year,  6, 30)): rainbow,
                 (date(year,  7,  1), date(year,  7, 10)): fourthofjuly,
+                (date(year,  9,  1), date(year,  9,  5)): labor_day,
                 (date(year, 10,  1), date(year, 11,  3)): halloween,
                 (date(year, 11,  4), date(year, 11, 26)): thanksgiving,
                 (date(year, 11, 27), date(year, 12, 30)): christmas,
